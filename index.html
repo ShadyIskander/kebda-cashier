@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>كاشير كبدة و سجق</title>
+<meta name="theme-color" content="#2F4A2C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="كاشير كبدة">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@400;600;700;800&family=Aref+Ruqaa:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#2F4A2C;
+    --green-2:#3B5A37;
+    --cream:#F8EDCC;
+    --card:#FDF8E7;
+    --lime:#98D08A;
+    --lime-2:#B7E0AA;
+    --ink:#2F4A2C;
+    --muted:#6B7A63;
+    --red:#A33A2A;
+    --radius:4px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--cream);color:var(--ink);font-family:"Cairo",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+  button,input,select{font-family:inherit;color:inherit}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ---------- header with scalloped awning ---------- */
+  header.top{background:var(--green);color:var(--cream);text-align:center;padding:18px 16px 26px;position:relative}
+  header.top::after{
+    content:"";position:absolute;left:0;right:0;bottom:-22px;height:22px;
+    background:radial-gradient(circle at 50% 0,var(--green) 21px,transparent 22px) 0 0/44px 22px repeat-x;
+  }
+  .brand{font-family:"Playfair Display",serif;letter-spacing:.02em;font-size:15px;line-height:1;direction:ltr}
+  .brand small{display:block;font-family:"Cairo";font-size:8px;letter-spacing:.45em;margin-top:3px;opacity:.85}
+  .badge{display:inline-block;background:var(--lime);color:var(--green);font-weight:800;font-size:11px;letter-spacing:.25em;padding:3px 12px;margin:10px 0 4px;font-family:"Cairo";direction:ltr}
+  .title{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(30px,6vw,52px);line-height:1.05;direction:ltr}
+  .title .amp{color:var(--lime);font-style:italic}
+  .title-ar{font-family:"Aref Ruqaa",serif;font-size:clamp(20px,3.6vw,30px);line-height:1.2}
+  .title-ar .w{color:var(--lime)}
+
+  /* ---------- tabs ---------- */
+  nav.tabs{display:flex;justify-content:center;gap:8px;margin:40px auto 18px;padding:0 12px;flex-wrap:wrap}
+  nav.tabs button{background:transparent;border:2px solid var(--green);padding:8px 20px;font-weight:700;font-size:16px;cursor:pointer;border-radius:var(--radius)}
+  nav.tabs button.on{background:var(--green);color:var(--cream)}
+  nav.tabs .navlink{background:var(--lime);border:2px solid var(--green);padding:8px 20px;font-weight:700;font-size:16px;border-radius:var(--radius);color:var(--green);text-decoration:none}
+  nav.tabs .count{display:inline-block;min-width:22px;padding:0 6px;margin-inline-start:6px;background:var(--lime);color:var(--green);border-radius:20px;font-size:13px}
+
+  main{max-width:1180px;margin:0 auto;padding:0 14px 60px}
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ---------- order view ---------- */
+  .order-wrap{display:grid;grid-template-columns:1fr;gap:18px}
+  @media (min-width:920px){.order-wrap{grid-template-columns:1.55fr 1fr;align-items:start}}
+
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .item{position:relative;background:var(--card);border:2px solid var(--green);padding:14px 14px 12px;text-align:start;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:112px;border-radius:var(--radius);transition:transform .08s ease, box-shadow .15s}
+  .item:active{transform:scale(.97)}
+  .item:hover{box-shadow:0 4px 0 var(--green)}
+  .item .cat{font-size:12px;font-weight:700;letter-spacing:.05em;color:var(--green-2);opacity:.85}
+  .item .nm{font-size:clamp(19px,2.6vw,25px);font-weight:800;line-height:1.25}
+  .item .en{font-family:"Playfair Display",serif;font-size:14px;opacity:.7;direction:ltr;display:inline-block}
+  .price{flex:none;width:70px;height:70px;border-radius:50%;background:var(--lime);border:2px solid var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:var(--green)}
+  .price b{font-family:"Playfair Display",serif;font-size:24px}
+  .price small{font-size:10px;font-weight:700;margin-top:3px}
+  .item.combo{background:var(--green);color:var(--cream)}
+  .item.combo .cat{background:var(--lime);color:var(--green);display:inline-block;padding:1px 10px;opacity:1}
+  .item.combo .old{font-family:"Playfair Display",serif;text-decoration:line-through;opacity:.6;font-size:17px;margin-inline-end:6px}
+  .item .qbadge{position:absolute;top:-10px;inset-inline-start:-10px;background:var(--red);color:#fff;font-weight:800;min-width:30px;height:30px;border-radius:15px;display:none;align-items:center;justify-content:center;padding:0 8px;font-size:15px;border:2px solid var(--cream)}
+  .item .qbadge.show{display:flex}
+  @media (max-width:520px){
+    .item{flex-direction:column;align-items:flex-start;min-height:150px}
+    .price{align-self:flex-end;width:60px;height:60px}
+    .price b{font-size:20px}
+  }
+
+  .panel{background:var(--card);border:2px solid var(--green);padding:16px;border-radius:var(--radius)}
+  @media (min-width:920px){.panel.sticky{position:sticky;top:12px}}
+  .panel h2{margin:0 0 12px;font-size:20px;display:flex;justify-content:space-between;align-items:center}
+  .edit-banner{display:none;background:#F3D9A4;border:1px dashed var(--green);padding:8px 10px;margin-bottom:12px;font-weight:700;font-size:14px;justify-content:space-between;align-items:center;gap:8px}
+  .edit-banner.show{display:flex}
+  label.fld{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+  input.txt,select.txt{width:100%;padding:11px 12px;font-size:17px;border:2px solid var(--green);background:#fff;border-radius:var(--radius);outline:none}
+  input.txt:focus,select.txt:focus{box-shadow:0 0 0 3px var(--lime-2)}
+  input.txt.err{border-color:var(--red);box-shadow:0 0 0 3px #f1c2b8}
+  .lines{margin:14px 0;min-height:60px}
+  .empty{color:var(--muted);text-align:center;padding:18px 6px;font-size:15px}
+  .line{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed #c9c2a4}
+  .line .ln{font-weight:700;font-size:16px}
+  .line .lp{font-size:13px;color:var(--muted)}
+  .qty{display:flex;align-items:center;border:2px solid var(--green);border-radius:var(--radius);overflow:hidden}
+  .qty button{width:36px;height:36px;border:0;background:var(--green);color:var(--cream);font-size:20px;font-weight:800;cursor:pointer}
+  .qty span{min-width:34px;text-align:center;font-weight:800;font-size:17px}
+  .line .lt{font-weight:800;min-width:72px;text-align:end}
+  .total-row{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--green);padding-top:12px;margin-top:4px}
+  .total-row span{font-weight:700;font-size:18px}
+  .total-row b{font-family:"Playfair Display",serif;font-size:32px}
+  .btn{border:2px solid var(--green);background:var(--card);padding:10px 16px;font-weight:800;font-size:16px;cursor:pointer;border-radius:var(--radius)}
+  .btn.primary{background:var(--green);color:var(--cream)}
+  .btn.lime{background:var(--lime);color:var(--green)}
+  .btn.danger{border-color:var(--red);color:var(--red);background:transparent}
+  .btn.danger.solid{background:var(--red);color:#fff}
+  .btn.sm{padding:5px 10px;font-size:14px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .actions{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:14px}
+  .actions .btn{padding:14px;font-size:18px}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .toolbar .grow{flex:1 1 220px}
+  .toolbar select.txt{width:auto;min-width:160px}
+
+  /* ---------- history ---------- */
+  .hist{display:grid;gap:10px}
+  .ord{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
+  .ord .no{background:var(--green);color:var(--cream);font-weight:800;border-radius:var(--radius);padding:4px 10px;font-size:15px;white-space:nowrap}
+  .ord .who{font-weight:800;font-size:18px}
+  .ord .when{font-size:13px;color:var(--muted)}
+  .ord .its{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:var(--cream);border:1px solid var(--green);padding:2px 9px;font-size:14px;border-radius:20px;font-weight:600}
+  .ord .side{text-align:end;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .ord .tot{font-family:"Playfair Display",serif;font-size:22px;font-weight:700}
+  .ord .tot small{font-family:"Cairo";font-size:12px;margin-inline-start:3px}
+  .ord .btns{display:flex;gap:6px}
+  @media (max-width:560px){.ord{grid-template-columns:1fr}.ord .side{flex-direction:row;justify-content:space-between;align-items:center}}
+
+  /* ---------- summary ---------- */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+  .tile{background:var(--green);color:var(--cream);padding:14px;border-radius:var(--radius)}
+  .tile .k{font-size:14px;opacity:.85;font-weight:600}
+  .tile .v{font-family:"Playfair Display",serif;font-size:30px;font-weight:700;margin-top:4px}
+  .tile .v small{font-family:"Cairo";font-size:13px;margin-inline-start:4px}
+  .tile.light{background:var(--lime);color:var(--green)}
+  .sec{margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+  .sec h3{margin:0;font-size:20px;white-space:nowrap}
+  .sec::after{content:"";flex:1;border-top:2px dashed var(--green);opacity:.4}
+  table.t{width:100%;border-collapse:collapse;background:var(--card);border:2px solid var(--green)}
+  table.t th,table.t td{padding:10px 12px;text-align:start;border-bottom:1px dashed #c9c2a4;font-size:16px}
+  table.t th{background:var(--green);color:var(--cream);font-weight:700;font-size:14px}
+  table.t td.n,table.t th.n{text-align:end;white-space:nowrap}
+  table.t tfoot td{font-weight:800;border-top:2px solid var(--green);border-bottom:0}
+  .bar{height:8px;background:#e8e0c2;border-radius:4px;overflow:hidden;min-width:60px}
+  .bar i{display:block;height:100%;background:var(--green)}
+  .kitchen{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .k-card{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .k-card .kn{font-weight:800;font-size:17px}
+  .k-card .kd{font-size:13px;color:var(--muted);margin-top:2px}
+  .k-card .price b{font-size:22px}
+  .table-scroll{overflow-x:auto}
+  .danger-zone{margin-top:34px;text-align:center}
+
+  /* ---------- modal + toast ---------- */
+  .modal-bg{position:fixed;inset:0;background:rgba(30,40,25,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--card);border:2px solid var(--green);max-width:420px;width:100%;padding:20px;border-radius:var(--radius)}
+  .modal h4{margin:0 0 8px;font-size:20px}
+  .modal p{margin:0 0 16px;font-size:16px;line-height:1.6}
+  .modal .row{display:flex;gap:10px;justify-content:flex-start}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--green);color:var(--cream);padding:12px 22px;font-weight:700;border-radius:var(--radius);transition:transform .25s ease;z-index:60;border:2px solid var(--lime);max-width:90vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .cloud-bar{margin:0 0 16px;padding:9px 14px;border-radius:var(--radius);font-weight:700;font-size:15px;text-align:center;border:2px solid}
+  .cloud-bar.ok{background:#E3F2DC;border-color:#4f9a43;color:#2F4A2C}
+  .cloud-bar.wait{background:#FBEBC2;border-color:#c9a64a;color:#6b5418}
+  .cloud-bar.bad{background:#F6D9D2;border-color:var(--red);color:var(--red)}
+  .minibar{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:40;background:var(--green);color:var(--cream);border:2px solid var(--lime);border-radius:var(--radius);padding:10px 14px;align-items:center;justify-content:space-between;font-weight:800;font-size:17px;cursor:pointer}
+  @media (max-width:919px){ body.has-cart .minibar.on{display:flex} body.has-cart main{padding-bottom:90px} }
+  footer{text-align:center;font-size:12px;letter-spacing:.2em;color:var(--green);opacity:.75;padding:10px 0 24px}
+  .sync{display:inline-flex;align-items:center;gap:6px;letter-spacing:0;font-size:13px}
+  .sync i{width:8px;height:8px;border-radius:50%;background:#c9a64a;display:inline-block}
+  .sync.cloud i{background:#4f9a43}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">ELEGANT EATS<small>CATERING</small></div>
+  <div class="badge">POP-UP</div>
+  <div class="title">Kebda <span class="amp">&amp;</span> Sogo2</div>
+  <div class="title-ar">كبدة <span class="w">و</span> سجق</div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button data-view="order" class="on">الطلب الجديد</button>
+  <button data-view="history">سجل الطلبات <span class="count num" id="histCount">0</span></button>
+  <button data-view="summary">الملخص</button>
+  <a class="navlink" href="/orders.html" target="_blank" rel="noopener">شاشة الطلبات ↗</a>
+</nav>
+
+<main>
+  <div class="cloud-bar ok" id="cloudBar">✓ الطلبات محفوظة على الجهاز</div>
+  <!-- ================= NEW ORDER ================= -->
+  <section class="view on" id="view-order">
+    <div class="order-wrap">
+      <div class="menu-grid" id="menuGrid"></div>
+
+      <aside class="panel sticky">
+        <div class="edit-banner" id="editBanner">
+          <span id="editText"></span>
+          <button class="btn sm" id="cancelEdit">إلغاء التعديل</button>
+        </div>
+        <h2>الطلب الحالي</h2>
+        <label class="fld" for="custName">اسم العميل</label>
+        <input class="txt" id="custName" list="nameList" autocomplete="off" placeholder="اكتب اسم العميل">
+        <datalist id="nameList"></datalist>
+        <div class="lines" id="cartLines"></div>
+        <div class="total-row"><span>الإجمالي</span><b class="num" id="cartTotal">0</b></div>
+        <div class="actions">
+          <button class="btn primary" id="saveBtn">حفظ الطلب</button>
+          <button class="btn danger" id="clearCart">مسح</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= HISTORY ================= -->
+  <section class="view" id="view-history">
+    <div class="toolbar">
+      <input class="txt grow" id="histSearch" placeholder="ابحث باسم العميل أو رقم الطلب">
+      <select class="txt" id="histDay"></select>
+      <button class="btn lime" id="exportBtn">تنزيل ملف Excel</button>
+      <button class="btn primary" id="backupBtn">نسخة احتياطية</button>
+      <button class="btn" id="restoreBtn">استرجاع</button>
+      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+    </div>
+    <div class="hist" id="histList"></div>
+  </section>
+
+  <!-- ================= SUMMARY ================= -->
+  <section class="view" id="view-summary">
+    <div class="toolbar">
+      <span style="font-weight:700">اليوم:</span>
+      <select class="txt" id="sumDay"></select>
+    </div>
+    <div id="sumBody"></div>
+    <div class="danger-zone"><button class="btn danger" id="wipeBtn">مسح كل البيانات</button></div>
+  </section>
+</main>
+
+<footer>
+  <div>ALL PRICES IN EGYPTIAN POUNDS</div>
+  <div style="margin-top:6px"><span class="sync" id="syncState"><i></i><span>محفوظ على هذا الجهاز</span></span></div>
+</footer>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h4 id="mTitle"></h4>
+    <p id="mText"></p>
+    <div class="row">
+      <button class="btn danger solid" id="mOk">تأكيد</button>
+      <button class="btn" id="mCancel">رجوع</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="minibar" id="minibar"><span id="miniCount"></span><span>الإجمالي: <span class="num" id="miniTotal">0</span> ج.م ⬇</span></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- menu (page 1 of the PDF) ---------------- */
+const MENU = [
+  {key:"k_sand",  cat:"ساندوتش (نصين)", name:"ساندوتش كبدة", en:"Kebda",  price:70,  parts:{kSand:1}},
+  {key:"s_sand",  cat:"ساندوتش (نصين)", name:"ساندوتش سجق",  en:"Sogo2",  price:80,  parts:{sSand:1}},
+  {key:"k_pasta", cat:"مكرونة",         name:"مكرونة كبدة",  en:"Kebda",  price:140, parts:{kPasta:1}},
+  {key:"s_pasta", cat:"مكرونة",         name:"مكرونة سجق",   en:"Sogo2",  price:150, parts:{sPasta:1}},
+  {key:"combo1",  cat:"كومبو 1", name:"2 كبدة + 1 سجق", en:"2 Kebda + 1 Sogo2", price:200, old:220, combo:true, parts:{kSand:2,sSand:1}},
+  {key:"combo2",  cat:"كومبو 2", name:"2 سجق + 1 كبدة", en:"2 Sogo2 + 1 Kebda", price:210, old:230, combo:true, parts:{sSand:2,kSand:1}},
+];
+const BY_KEY = Object.fromEntries(MENU.map(m=>[m.key,m]));
+const SHORT = {k_sand:"ساندوتش كبدة",s_sand:"ساندوتش سجق",k_pasta:"مكرونة كبدة",s_pasta:"مكرونة سجق",combo1:"كومبو 1",combo2:"كومبو 2"};
+const KITCHEN = [
+  {key:"kSand",  name:"ساندوتشات كبدة", price:"🥪"},
+  {key:"sSand",  name:"ساندوتشات سجق",  price:"🥪"},
+  {key:"kPasta", name:"مكرونة كبدة",    price:"🍝"},
+  {key:"sPasta", name:"مكرونة سجق",     price:"🍝"},
+];
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n||0).toLocaleString("en-US");
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const normName = s => String(s||"").trim().replace(/\s+/g," ");
+const pad = n => String(n).padStart(2,"0");
+const dayKey = ts => {const d=new Date(ts);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
+const fmtTime = ts => new Intl.DateTimeFormat("ar-EG-u-nu-latn",{hour:"numeric",minute:"2-digit"}).format(ts);
+const fmtDay = key => {const [y,m,d]=key.split("-").map(Number);return new Intl.DateTimeFormat("ar-EG-u-nu-latn",{weekday:"long",day:"numeric",month:"long"}).format(new Date(y,m-1,d));};
+const newId = () => "o"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+
+/* ---------------- state ---------------- */
+const LS_KEY = "kebda_sogo2_pos_v1";
+let orders = {};        // id -> order  (deleted orders kept as tombstones)
+let cart = [];          // [{key, qty}]
+let editingId = null;
+
+function sanitize(o){
+  if(!o || typeof o!=="object") return null;
+  if(typeof o.id!=="string" || !/^[a-z0-9]{4,40}$/i.test(o.id)) return null;
+  const items = Array.isArray(o.items) ? o.items.filter(i=>i && BY_KEY[i.key]).map(i=>({
+    key:i.key,
+    qty:Math.max(1,Math.min(999,parseInt(i.qty,10)||1)),
+    price:Number.isFinite(+i.price)?+i.price:BY_KEY[i.key].price
+  })) : [];
+  return {
+    id:o.id,
+    num:Math.max(0,parseInt(o.num,10)||0),
+    name:normName(o.name).slice(0,60),
+    items,
+    total:items.reduce((s,i)=>s+i.qty*i.price,0),
+    createdAt:+o.createdAt||Date.now(),
+    updatedAt:+o.updatedAt||0,
+    deleted:!!o.deleted,
+    done:!!o.done
+  };
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const arr = JSON.parse(raw);
+    (Array.isArray(arr)?arr:[]).forEach(x=>{const o=sanitize(x); if(o) orders[o.id]=o;});
+  }catch(e){}
+}
+function saveLocal(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(Object.values(orders))); }catch(e){}
+}
+const live = () => Object.values(orders).filter(o=>!o.deleted);
+
+/* ---------------- device storage + backups (no database) ---------------- */
+const BACKUP_KEY = LS_KEY+"_lastBackup";
+let storageOK = true, persisted = false;
+(function checkStorage(){
+  try{ localStorage.setItem(LS_KEY+"_t","1"); localStorage.removeItem(LS_KEY+"_t"); }catch(e){ storageOK=false; }
+})();
+function lastBackup(){ try{ return +localStorage.getItem(BACKUP_KEY)||0; }catch(e){ return 0; } }
+function markBackup(){ try{ localStorage.setItem(BACKUP_KEY, String(Date.now())); }catch(e){} }
+
+const PENDING_KEY = LS_KEY+"_pending";
+const SEEDED_KEY = LS_KEY+"_seeded";
+let pending = new Set();
+try{ pending = new Set(JSON.parse(localStorage.getItem(PENDING_KEY)||"[]")); }catch(e){}
+function savePending(){ try{ localStorage.setItem(PENDING_KEY, JSON.stringify([...pending])); }catch(e){} }
+let online = null;   // null = unknown, true = server reachable, false = offline
+
+function updateSyncUI(){
+  const bar=$("cloudBar"), foot=$("syncState");
+  let cls, msg, ft;
+  if(!storageOK){
+    cls="bad"; msg="⚠ المتصفح ده مش بيحفظ البيانات (غالبًا وضع التصفح الخفي). افتح الصفحة في نافذة عادية قبل ما تاخد طلبات.";
+    ft="غير محفوظ";
+  }else if(online===false || pending.size){
+    cls="wait";
+    msg = online===false
+      ? `📡 مفيش اتصال بالسيرفر — الطلبات محفوظة على الجهاز وهتتبعت لوحدها أول ما النت يرجع${pending.size?` (${pending.size} في الانتظار)`:""}`
+      : `⏳ بيتم إرسال ${pending.size} طلب للسيرفر…`;
+    ft="في انتظار المزامنة";
+  }else if(online===true){
+    cls="ok"; msg="✓ الطلبات متزامنة مع السيرفر — شاشة الطلبات بتشوفها فورًا"; ft="متزامن مع السيرفر";
+  }else{
+    cls="wait"; msg="…جاري الاتصال بالسيرفر"; ft="جاري الاتصال";
+  }
+  bar.className="cloud-bar "+cls; bar.textContent=msg;
+  foot.className="sync"+(cls==="ok"?" cloud":"");
+  foot.querySelector("span").textContent = ft;
+}
+function setSync(){ updateSyncUI(); }
+
+let flushing=false;
+async function flush(){
+  if(flushing || !pending.size) return;
+  flushing=true;
+  const ids=[...pending];
+  const list=ids.map(id=>orders[id]).filter(Boolean);
+  try{
+    if(list.length){
+      const r=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orders:list})});
+      if(!r.ok) throw new Error("http "+r.status);
+    }
+    ids.forEach(id=>pending.delete(id)); savePending(); online=true;
+  }catch(e){ online=false; }
+  flushing=false; updateSyncUI();
+}
+function pushRemote(o){ pending.add(o.id); savePending(); updateSyncUI(); flush(); }
+
+async function pull(){
+  try{
+    const r=await fetch("/api/orders",{cache:"no-store"});
+    if(!r.ok) throw new Error("http "+r.status);
+    const j=await r.json();
+    let changed=false;
+    (j.orders||[]).map(sanitize).filter(Boolean).forEach(o=>{
+      if(!orders[o.id] || o.updatedAt>orders[o.id].updatedAt){ orders[o.id]=o; changed=true; }
+    });
+    if(changed){ saveLocal(); renderAll(); }
+    online=true;
+  }catch(e){ online=false; }
+  updateSyncUI();
+}
+
+function downloadFile(name, text, type){
+  const blob = new Blob([text], {type});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+async function initCloud(){
+  try{
+    if(navigator.storage && navigator.storage.persist){
+      persisted = await navigator.storage.persisted() || await navigator.storage.persist();
+    }
+  }catch(e){}
+  try{
+    if(!localStorage.getItem(SEEDED_KEY)){
+      Object.keys(orders).forEach(id=>pending.add(id)); savePending();
+      localStorage.setItem(SEEDED_KEY,"1");
+    }
+  }catch(e){}
+  updateSyncUI();
+  await flush(); await pull();
+  setInterval(()=>{ flush().then(pull); }, 5000);
+  window.addEventListener("online",()=>{ flush().then(pull); });
+}
+
+/* ---------------- toast + modal ---------------- */
+let toastT;
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2200);}
+let modalCb=null;
+function confirmBox(title,text,okLabel,cb){
+  $("mTitle").textContent=title;$("mText").textContent=text;$("mOk").textContent=okLabel||"تأكيد";
+  modalCb=cb;$("modalBg").classList.add("show");
+}
+$("mOk").onclick=()=>{$("modalBg").classList.remove("show");const c=modalCb;modalCb=null;c&&c();};
+$("mCancel").onclick=()=>{$("modalBg").classList.remove("show");modalCb=null;};
+$("modalBg").onclick=e=>{if(e.target.id==="modalBg"){$("modalBg").classList.remove("show");modalCb=null;}};
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+function showView(v){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.view===v));
+  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="view-"+v));
+  renderAll();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---------------- menu buttons ---------------- */
+function renderMenu(){
+  $("menuGrid").innerHTML = MENU.map(m=>`
+    <button class="item${m.combo?" combo":""}" data-key="${m.key}">
+      <span class="qbadge num" data-q="${m.key}"></span>
+      <span>
+        <span class="cat">${esc(m.cat)}</span><br>
+        <span class="nm">${esc(m.name)}</span><br>
+        <span class="en">${esc(m.en)}</span>
+        ${m.old?`<br><span class="old num">${m.old}</span>`:""}
+      </span>
+      <span class="price"><b class="num">${m.price}</b><small>EGP</small></span>
+    </button>`).join("");
+  $("menuGrid").querySelectorAll(".item").forEach(b=>b.onclick=()=>addToCart(b.dataset.key));
+}
+function addToCart(key){
+  const l = cart.find(x=>x.key===key);
+  if(l) l.qty++; else cart.push({key,qty:1});
+  renderCart();
+}
+
+/* ---------------- cart ---------------- */
+function cartTotal(){return cart.reduce((s,l)=>s+l.qty*priceFor(l),0);}
+function priceFor(l){return l.price!=null?l.price:BY_KEY[l.key].price;}
+function renderCart(){
+  const box=$("cartLines");
+  if(!cart.length){ box.innerHTML='<div class="empty">اضغط على الأصناف لإضافتها للطلب</div>'; }
+  else{
+    box.innerHTML = cart.map((l,i)=>`
+      <div class="line">
+        <div><div class="ln">${esc(SHORT[l.key])}</div><div class="lp num">${fmt(priceFor(l))} ج.م للواحد</div></div>
+        <div class="qty"><button data-i="${i}" data-d="1" aria-label="زيادة">+</button><span class="num">${l.qty}</span><button data-i="${i}" data-d="-1" aria-label="نقص">−</button></div>
+        <div class="lt num">${fmt(l.qty*priceFor(l))}</div>
+      </div>`).join("");
+    box.querySelectorAll(".qty button").forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i, d=+b.dataset.d;
+      cart[i].qty+=d; if(cart[i].qty<=0) cart.splice(i,1);
+      renderCart();
+    });
+  }
+  $("cartTotal").textContent = fmt(cartTotal());
+  const cnt = cart.reduce((s,l)=>s+l.qty,0);
+  document.body.classList.toggle("has-cart", cnt>0);
+  $("minibar").classList.toggle("on", $("view-order").classList.contains("on"));
+  $("miniCount").textContent = cnt+" صنف — اضغط للطلب";
+  $("miniTotal").textContent = fmt(cartTotal());
+  document.querySelectorAll("[data-q]").forEach(el=>{
+    const l=cart.find(x=>x.key===el.dataset.q);
+    el.textContent = l? "×"+l.qty : "";
+    el.classList.toggle("show",!!l);
+  });
+  $("saveBtn").textContent = editingId ? "حفظ التعديل" : "حفظ الطلب";
+  const eb=$("editBanner");
+  if(editingId && orders[editingId]){ eb.classList.add("show"); $("editText").textContent="بتعدّل طلب رقم "+orders[editingId].num; }
+  else eb.classList.remove("show");
+}
+$("minibar").onclick=()=>document.querySelector(".panel.sticky").scrollIntoView({behavior:"smooth",block:"start"});
+$("custName").addEventListener("input",()=>$("custName").classList.remove("err"));
+$("clearCart").onclick=()=>{
+  if(!cart.length && !normName($("custName").value)) return;
+  cart=[]; $("custName").value=""; if(editingId){editingId=null;} renderCart();
+};
+$("cancelEdit").onclick=()=>{editingId=null;cart=[];$("custName").value="";renderCart();showView("history");};
+$("saveBtn").onclick=()=>{
+  const name = normName($("custName").value);
+  if(!name){ $("custName").classList.add("err"); $("custName").focus(); toast("اكتب اسم العميل الأول"); return; }
+  if(!cart.length){ toast("الطلب فاضي — اختار صنف"); return; }
+  const now = Date.now();
+  let o;
+  if(editingId && orders[editingId]){
+    const prev = orders[editingId];
+    o = {...prev, name, items:cart.map(l=>({key:l.key,qty:l.qty,price:priceFor(l)})), updatedAt:now};
+  }else{
+    const maxNum = Object.values(orders).reduce((m,x)=>Math.max(m,x.num||0),0);
+    o = {id:newId(), num:maxNum+1, name, items:cart.map(l=>({key:l.key,qty:l.qty,price:priceFor(l)})), createdAt:now, updatedAt:now, deleted:false};
+  }
+  o.total = o.items.reduce((s,i)=>s+i.qty*i.price,0);
+  orders[o.id]=o; saveLocal(); pushRemote(o);
+  const wasEdit = !!editingId;
+  editingId=null; cart=[]; $("custName").value="";
+  renderAll();
+  toast(wasEdit ? "تم حفظ التعديل ✓" : `تم حفظ طلب رقم ${o.num} — ${o.name} ✓`);
+  if(wasEdit) showView("history");
+};
+
+/* ---------------- day filters ---------------- */
+function dayOptions(sel, keepVal){
+  const days = [...new Set(live().map(o=>dayKey(o.createdAt)))].sort().reverse();
+  const today = dayKey(Date.now());
+  if(!days.includes(today)) days.unshift(today);
+  const cur = keepVal || sel.value || "all";
+  sel.innerHTML = `<option value="all">كل الأيام</option>` + days.map(d=>`<option value="${d}">${esc(fmtDay(d))}${d===today?" (النهارده)":""}</option>`).join("");
+  sel.value = [...sel.options].some(o=>o.value===cur) ? cur : "all";
+}
+const inDay = (o,d) => d==="all" || dayKey(o.createdAt)===d;
+
+/* ---------------- history ---------------- */
+function itemChips(o){return o.items.map(i=>`<span class="chip">${esc(SHORT[i.key])} <span class="num">×${i.qty}</span></span>`).join("");}
+function filteredHistory(){
+  const q = normName($("histSearch").value).toLowerCase();
+  const d = $("histDay").value || "all";
+  return live().filter(o=>inDay(o,d)).filter(o=>!q || o.name.toLowerCase().includes(q) || String(o.num)===q.replace("#",""))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+}
+function renderHistory(){
+  dayOptions($("histDay"));
+  const list = filteredHistory();
+  $("histList").innerHTML = list.length ? list.map(o=>`
+    <div class="ord">
+      <div class="no num">#${o.num}</div>
+      <div>
+        <div class="who">${esc(o.name)}</div>
+        <div class="when num">${esc(fmtDay(dayKey(o.createdAt)))} — ${esc(fmtTime(o.createdAt))}${o.updatedAt-o.createdAt>1500?" · (متعدّل)":""}</div>
+        <div class="its">${itemChips(o)}</div>
+      </div>
+      <div class="side">
+        <div class="tot num">${fmt(o.total)}<small>ج.م</small></div>
+        <div class="btns">
+          <button class="btn sm" data-edit="${o.id}">تعديل</button>
+          <button class="btn sm danger" data-del="${o.id}">حذف</button>
+        </div>
+      </div>
+    </div>`).join("") : '<div class="empty panel">مفيش طلبات لسه</div>';
+  $("histList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>startEdit(b.dataset.edit));
+  $("histList").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    const o=orders[b.dataset.del]; if(!o) return;
+    confirmBox("حذف الطلب؟",`هيتم حذف طلب رقم ${o.num} (${o.name}) بإجمالي ${fmt(o.total)} ج.م.`,"حذف",()=>{
+      const d={...o,deleted:true,updatedAt:Date.now()}; orders[o.id]=d; saveLocal(); pushRemote(d);
+      if(editingId===o.id){editingId=null;cart=[];}
+      renderAll(); toast("تم حذف الطلب");
+    });
+  });
+}
+function startEdit(id){
+  const o=orders[id]; if(!o) return;
+  editingId=id; cart=o.items.map(i=>({key:i.key,qty:i.qty,price:i.price}));
+  $("custName").value=o.name;
+  showView("order");
+}
+$("histSearch").addEventListener("input",renderHistory);
+$("histDay").addEventListener("change",renderHistory);
+
+/* ---------------- CSV export ---------------- */
+function csvCell(v){v=String(v==null?"":v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function buildCSV(list){
+  const head=["رقم الطلب","التاريخ","الوقت","اسم العميل",...MENU.map(m=>SHORT[m.key]),"الإجمالي (ج.م)"];
+  const rows=list.map(o=>{
+    const q=Object.fromEntries(MENU.map(m=>[m.key,0])); o.items.forEach(i=>q[i.key]+=i.qty);
+    return [o.num,dayKey(o.createdAt),fmtTime(o.createdAt),o.name,...MENU.map(m=>q[m.key]),o.total];
+  });
+  const sum=MENU.map(m=>list.reduce((s,o)=>s+o.items.filter(i=>i.key===m.key).reduce((a,i)=>a+i.qty,0),0));
+  rows.push(["","","","المجموع",...sum,list.reduce((s,o)=>s+o.total,0)]);
+  return "﻿"+[head,...rows].map(r=>r.map(csvCell).join(",")).join("\r\n");
+}
+$("exportBtn").onclick=()=>{
+  const list = filteredHistory().slice().sort((a,b)=>a.num-b.num);
+  if(!list.length){toast("مفيش طلبات للتصدير");return;}
+  const d=$("histDay").value;
+  downloadFile("kebda-sogo2-orders-"+(d==="all"?"all":d)+".csv", buildCSV(list), "text/csv;charset=utf-8");
+  toast("تم تنزيل ملف Excel ✓");
+};
+
+/* ---------------- full backup / restore ---------------- */
+$("backupBtn").onclick=()=>{
+  const all = Object.values(orders);
+  if(!all.length){toast("مفيش طلبات لسه");return;}
+  const payload = {app:"kebda-sogo2-pos", version:1, exportedAt:Date.now(), orders:all};
+  const now=new Date();
+  downloadFile(`kebda-sogo2-backup-${dayKey(now)}-${pad(now.getHours())}${pad(now.getMinutes())}.json`, JSON.stringify(payload), "application/json");
+  markBackup(); updateSyncUI();
+  toast("تم حفظ النسخة الاحتياطية ✓ — احتفظ بالملف");
+};
+$("restoreBtn").onclick=()=>$("restoreFile").click();
+$("restoreFile").onchange=async e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value="";
+  if(!f) return;
+  let data;
+  try{ data=JSON.parse(await f.text()); }catch(err){ toast("الملف ده مش نسخة احتياطية صحيحة"); return; }
+  const arr = Array.isArray(data) ? data : (data && Array.isArray(data.orders) ? data.orders : null);
+  if(!arr){ toast("الملف ده مش نسخة احتياطية صحيحة"); return; }
+  const incoming = arr.map(sanitize).filter(Boolean);
+  const fresh = incoming.filter(o=>!orders[o.id] || o.updatedAt>orders[o.id].updatedAt);
+  const newLive = fresh.filter(o=>!o.deleted && !orders[o.id]).length;
+  confirmBox("استرجاع نسخة احتياطية؟",
+    `الملف فيه ${incoming.filter(o=>!o.deleted).length} طلب. هيتضاف ${newLive} طلب جديد للسجل وهيتحدّث ${fresh.length-newLive} — الطلبات اللي موجودة مش هتتمسح.`,
+    "استرجاع",()=>{
+      fresh.forEach(o=>{orders[o.id]=o; pushRemote(o);}); saveLocal(); renderAll();
+      toast(`تم الاسترجاع ✓ (${fresh.length} طلب)`);
+    });
+};
+
+/* ---------------- summary ---------------- */
+function renderSummary(){
+  dayOptions($("sumDay"));
+  const d=$("sumDay").value||"all";
+  const list = live().filter(o=>inDay(o,d));
+  const revenue = list.reduce((s,o)=>s+o.total,0);
+  const custs = new Map();
+  const perItem = Object.fromEntries(MENU.map(m=>[m.key,{qty:0,rev:0}]));
+  const kitchen = {kSand:0,sSand:0,kPasta:0,sPasta:0};
+  const kitchenFromCombo = {kSand:0,sSand:0};
+  list.forEach(o=>{
+    const key=o.name.toLowerCase();
+    if(!custs.has(key)) custs.set(key,{name:o.name,orders:0,items:{},total:0});
+    const c=custs.get(key); c.orders++; c.total+=o.total;
+    o.items.forEach(i=>{
+      perItem[i.key].qty+=i.qty; perItem[i.key].rev+=i.qty*i.price;
+      c.items[i.key]=(c.items[i.key]||0)+i.qty;
+      const m=BY_KEY[i.key];
+      Object.entries(m.parts).forEach(([p,n])=>{kitchen[p]+=n*i.qty; if(m.combo) kitchenFromCombo[p]+=n*i.qty;});
+    });
+  });
+  const maxRev = Math.max(1,...Object.values(perItem).map(x=>x.rev));
+  const itemsSold = Object.values(perItem).reduce((s,x)=>s+x.qty,0);
+
+  const tiles = `
+    <div class="tiles">
+      <div class="tile"><div class="k">إجمالي المبيعات</div><div class="v num">${fmt(revenue)}<small>ج.م</small></div></div>
+      <div class="tile"><div class="k">عدد الطلبات</div><div class="v num">${fmt(list.length)}</div></div>
+      <div class="tile light"><div class="k">متوسط الطلب</div><div class="v num">${fmt(list.length?Math.round(revenue/list.length):0)}<small>ج.م</small></div></div>
+      <div class="tile light"><div class="k">عدد العملاء</div><div class="v num">${fmt(custs.size)}</div></div>
+    </div>`;
+
+  const itemTable = `
+    <div class="sec"><h3>مبيعات كل زرار</h3></div>
+    <div class="table-scroll"><table class="t">
+      <thead><tr><th>الصنف</th><th class="n">السعر</th><th class="n">العدد</th><th class="n">الإيراد</th><th style="width:28%"></th></tr></thead>
+      <tbody>${MENU.map(m=>`<tr>
+        <td><b>${esc(SHORT[m.key])}</b>${m.combo?` <span style="color:var(--muted);font-size:13px">(${esc(m.name)})</span>`:""}</td>
+        <td class="n num">${fmt(m.price)}</td>
+        <td class="n num"><b>${fmt(perItem[m.key].qty)}</b></td>
+        <td class="n num">${fmt(perItem[m.key].rev)} ج.م</td>
+        <td><div class="bar"><i style="width:${(perItem[m.key].rev/maxRev*100).toFixed(1)}%"></i></div></td>
+      </tr>`).join("")}</tbody>
+      <tfoot><tr><td>المجموع</td><td></td><td class="n num">${fmt(itemsSold)}</td><td class="n num">${fmt(revenue)} ج.م</td><td></td></tr></tfoot>
+    </table></div>`;
+
+  const kitchenCards = `
+    <div class="sec"><h3>اللي اتعمل في المطبخ (الكومبو متفكّك)</h3></div>
+    <div class="kitchen">${KITCHEN.map(k=>`
+      <div class="k-card">
+        <div><div class="kn">${esc(k.name)}</div>
+        <div class="kd num">${k.key in kitchenFromCombo ? `منهم ${fmt(kitchenFromCombo[k.key])} من الكومبو` : "&nbsp;"}</div></div>
+        <div class="price"><b class="num">${fmt(kitchen[k.key])}</b></div>
+      </div>`).join("")}
+    </div>`;
+
+  const custArr=[...custs.values()].sort((a,b)=>b.total-a.total);
+  const custTable = `
+    <div class="sec"><h3>مين طلب إيه</h3></div>
+    ${custArr.length?`<div class="table-scroll"><table class="t">
+      <thead><tr><th>اسم العميل</th><th>طلب إيه</th><th class="n">عدد الطلبات</th><th class="n">دفع</th></tr></thead>
+      <tbody>${custArr.map(c=>`<tr>
+        <td><b>${esc(c.name)}</b></td>
+        <td>${MENU.filter(m=>c.items[m.key]).map(m=>`<span class="chip">${esc(SHORT[m.key])} <span class="num">×${c.items[m.key]}</span></span>`).join(" ")}</td>
+        <td class="n num">${fmt(c.orders)}</td>
+        <td class="n num"><b>${fmt(c.total)}</b> ج.م</td>
+      </tr>`).join("")}</tbody>
+    </table></div>`:'<div class="empty panel">مفيش طلبات في اليوم ده</div>'}`;
+
+  $("sumBody").innerHTML = tiles + itemTable + kitchenCards + custTable;
+}
+$("sumDay").addEventListener("change",renderSummary);
+
+$("wipeBtn").onclick=()=>{
+  const n=live().length; if(!n){toast("مفيش بيانات");return;}
+  confirmBox("مسح كل البيانات؟",`هيتم حذف كل الطلبات (${n} طلب) نهائيًا. اعمل «نسخة احتياطية» الأول لو محتاجها.`,"امسح الكل",()=>{
+    const now=Date.now();
+    live().forEach(o=>{const d={...o,deleted:true,updatedAt:now};orders[o.id]=d;pushRemote(d);});
+    saveLocal(); editingId=null; cart=[]; renderAll(); toast("تم مسح كل البيانات");
+  });
+};
+
+/* ---------------- render ---------------- */
+function renderNames(){
+  const names=[...new Set(live().map(o=>o.name))].slice(0,300);
+  $("nameList").innerHTML=names.map(n=>`<option value="${esc(n)}">`).join("");
+}
+function renderAll(){
+  $("histCount").textContent = live().length;
+  updateSyncUI();
+  renderCart(); renderNames();
+  if($("view-history").classList.contains("on")) renderHistory();
+  if($("view-summary").classList.contains("on")) renderSummary();
+}
+
+loadLocal();
+renderMenu();
+renderAll();
+initCloud();
+})();
+</script>
+</body>
+</html>

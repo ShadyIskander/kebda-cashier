@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شاشة الطلبات — كبدة و سجق</title>
+<meta name="theme-color" content="#2F4A2C">
+<link rel="icon" href="/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--green:#2F4A2C;--cream:#F8EDCC;--card:#FDF8E7;--lime:#98D08A;--muted:#6B7A63;--red:#A33A2A;--radius:4px}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--cream);color:var(--green);font-family:"Cairo",system-ui,sans-serif}
+  button{font-family:inherit;color:inherit}
+  .num{font-variant-numeric:tabular-nums}
+  header{background:var(--green);color:var(--cream);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  header h1{margin:0;font-size:22px}
+  .stat{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .pill{background:var(--lime);color:var(--green);font-weight:800;padding:4px 14px;border-radius:20px;font-size:15px}
+  .pill.dim{background:transparent;border:1px solid var(--cream);color:var(--cream)}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+  .live i{width:9px;height:9px;border-radius:50%;background:#c9a64a;display:inline-block}
+  .live.ok i{background:#7fe06a}
+  .live.bad i{background:#ff7b66}
+  .tabs{display:flex;gap:8px;padding:14px 14px 0;flex-wrap:wrap}
+  .tabs button{background:transparent;border:2px solid var(--green);padding:8px 20px;font-weight:700;font-size:16px;cursor:pointer;border-radius:var(--radius)}
+  .tabs button.on{background:var(--green);color:var(--cream)}
+  .tabs select{padding:8px 12px;font-size:15px;border:2px solid var(--green);background:#fff;border-radius:var(--radius);margin-inline-start:auto}
+  main{padding:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+  .card{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:10px}
+  .card.done{opacity:.6;background:#e6e1c6}
+  .card.fresh{animation:pop 1.2s ease 2}
+  @keyframes pop{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 6px var(--lime)}}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .no{background:var(--green);color:var(--cream);font-weight:800;border-radius:var(--radius);padding:3px 12px;font-size:20px}
+  .time{font-size:13px;color:var(--muted)}
+  .who{font-weight:800;font-size:22px}
+  .items{display:grid;gap:6px}
+  .it{display:flex;justify-content:space-between;align-items:center;font-size:20px;font-weight:700;border-bottom:1px dashed #c9c2a4;padding-bottom:5px}
+  .it b{background:var(--lime);border:2px solid var(--green);border-radius:20px;min-width:40px;text-align:center;padding:0 8px;font-size:20px}
+  .bot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}
+  .tot{font-family:"Playfair Display",serif;font-size:22px;font-weight:700}
+  .tot small{font-family:"Cairo";font-size:12px;margin-inline-start:3px}
+  .btn{border:2px solid var(--green);background:var(--green);color:var(--cream);padding:9px 16px;font-weight:800;font-size:16px;cursor:pointer;border-radius:var(--radius)}
+  .btn.undo{background:transparent;color:var(--green)}
+  .empty{text-align:center;color:var(--muted);padding:60px 10px;font-size:20px;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <h1>🍽️ شاشة الطلبات — كبدة و سجق</h1>
+  <div class="stat">
+    <span class="pill num" id="pPending">0 قيد التحضير</span>
+    <span class="pill dim num" id="pDone">0 جاهز</span>
+    <span class="live" id="live"><i></i><span>جاري الاتصال…</span></span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button data-f="pending" class="on">قيد التحضير</button>
+  <button data-f="done">جاهز</button>
+  <button data-f="all">الكل</button>
+  <select id="day"></select>
+</div>
+
+<main><div class="grid" id="grid"></div></main>
+
+<script>
+(function(){
+"use strict";
+const SHORT={k_sand:"ساندوتش كبدة",s_sand:"ساندوتش سجق",k_pasta:"مكرونة كبدة",s_pasta:"مكرونة سجق",combo1:"كومبو 1 (2 كبدة + 1 سجق)",combo2:"كومبو 2 (2 سجق + 1 كبدة)"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>Number(n||0).toLocaleString("en-US");
+const pad=n=>String(n).padStart(2,"0");
+const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
+const fmtTime=ts=>new Intl.DateTimeFormat("ar-EG-u-nu-latn",{hour:"numeric",minute:"2-digit"}).format(ts);
+const fmtDay=key=>{const [y,m,d]=key.split("-").map(Number);return new Intl.DateTimeFormat("ar-EG-u-nu-latn",{weekday:"long",day:"numeric",month:"long"}).format(new Date(y,m-1,d));};
+
+let orders={}, filter="pending", seen=new Set(), first=true, fresh=new Set();
+
+async function pull(){
+  try{
+    const r=await fetch("/api/orders",{cache:"no-store"});
+    if(!r.ok) throw new Error(r.status);
+    const j=await r.json();
+    const map={};
+    (j.orders||[]).forEach(o=>{ if(o&&o.id&&!o.deleted) map[o.id]=o; });
+    Object.keys(map).forEach(id=>{ if(!first && !seen.has(id)) fresh.add(id); seen.add(id); });
+    if(!first && [...fresh].length) beep();
+    first=false; orders=map;
+    setLive(true); render();
+  }catch(e){ setLive(false); }
+}
+function setLive(ok){
+  const l=$("live"); l.className="live "+(ok?"ok":"bad");
+  l.querySelector("span").textContent = ok ? "متصل — بيتحدث لوحده" : "مفيش اتصال بالسيرفر";
+}
+function beep(){
+  try{
+    const c=new (window.AudioContext||window.webkitAudioContext)();
+    const o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination); o.frequency.value=880; g.gain.value=.15;
+    o.start(); setTimeout(()=>{o.stop();c.close();},220);
+  }catch(e){}
+}
+async function setDone(id,done){
+  const o=orders[id]; if(!o) return;
+  const upd={...o,done,updatedAt:Date.now()};
+  orders[id]=upd; render();
+  try{
+    const r=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(upd)});
+    if(!r.ok) throw new Error();
+  }catch(e){ setLive(false); }
+}
+function dayOptions(){
+  const sel=$("day"), cur=sel.value||dayKey(Date.now());
+  const days=[...new Set(Object.values(orders).map(o=>dayKey(o.createdAt)))].sort().reverse();
+  const today=dayKey(Date.now()); if(!days.includes(today)) days.unshift(today);
+  sel.innerHTML='<option value="all">كل الأيام</option>'+days.map(d=>`<option value="${d}">${esc(fmtDay(d))}${d===today?" (النهارده)":""}</option>`).join("");
+  sel.value=[...sel.options].some(o=>o.value===cur)?cur:today;
+}
+function render(){
+  dayOptions();
+  const d=$("day").value;
+  const inDay=Object.values(orders).filter(o=>d==="all"||dayKey(o.createdAt)===d);
+  $("pPending").textContent=inDay.filter(o=>!o.done).length+" قيد التحضير";
+  $("pDone").textContent=inDay.filter(o=>o.done).length+" جاهز";
+  let list=inDay.filter(o=>filter==="all"||(filter==="done"?o.done:!o.done));
+  // pending: oldest first (cook in order); others: newest first
+  list.sort((a,b)=>filter==="pending"?a.createdAt-b.createdAt:b.createdAt-a.createdAt);
+  $("grid").innerHTML=list.length?list.map(o=>`
+    <div class="card${o.done?" done":""}${fresh.has(o.id)?" fresh":""}">
+      <div class="top"><span class="no num">#${o.num}</span><span class="time num">${esc(fmtTime(o.createdAt))}</span></div>
+      <div class="who">${esc(o.name)}</div>
+      <div class="items">${(o.items||[]).map(i=>`<div class="it"><span>${esc(SHORT[i.key]||i.key)}</span><b class="num">×${i.qty}</b></div>`).join("")}</div>
+      <div class="bot">
+        <span class="tot num">${fmt(o.total)}<small>ج.م</small></span>
+        ${o.done?`<button class="btn undo" data-undo="${o.id}">رجوع للتحضير</button>`:`<button class="btn" data-done="${o.id}">✓ جاهز</button>`}
+      </div>
+    </div>`).join(""):'<div class="empty" style="grid-column:1/-1">مفيش طلبات هنا</div>';
+  $("grid").querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>setDone(b.dataset.done,true));
+  $("grid").querySelectorAll("[data-undo]").forEach(b=>b.onclick=()=>setDone(b.dataset.undo,false));
+  setTimeout(()=>{fresh.clear();},2600);
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  filter=b.dataset.f;
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  render();
+});
+$("day").addEventListener("change",render);
+pull(); setInterval(pull,4000);
+})();
+</script>
+</body>
+</html>
